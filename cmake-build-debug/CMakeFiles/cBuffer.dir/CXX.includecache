@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/c/Users/Fabio/CLionProjects/cBuffer/cmake-build-debug/exeptionBuffer.cpp
+exeptionBuffer.h
+/mnt/c/Users/Fabio/CLionProjects/cBuffer/cmake-build-debug/exeptionBuffer.h
+
+/mnt/c/Users/Fabio/CLionProjects/cBuffer/cmake-build-debug/exeptionBuffer.h
+string
+-
+
+/mnt/c/Users/Fabio/CLionProjects/cBuffer/main.cpp
+iostream
+-
+
