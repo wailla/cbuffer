@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/cbufferlist.dir/main.cpp.o CMakeFiles/cbufferlist.dir/exetion.cpp.o  -o cbufferlist 
