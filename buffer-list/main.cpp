@@ -2,6 +2,9 @@
 #include <cassert>
 #include "cbufferlist.h"
 
+/**
+ * versione da presenrtare e funzionante
+ */
 struct equalInt {
     bool operator()(int a, int b) const {
         return a == b;
