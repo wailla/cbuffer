@@ -21,7 +21,7 @@ class cbufferlist {
 
     // Tipo di supporto privato della coda
     typedef T value_type; ///< @brief Tipo di supporto privato per rappresentare
-    ///< il tipo generico del valore degli elementi del buffer
+                          ///< il tipo generico del valore degli elementi del buffer
     struct element {
         value_type value; ///< @brief Valore dell'elemento
         element *next; ///< @brief Puntatore all'elemento successivo della coda
@@ -1078,7 +1078,7 @@ public:
 
 };
 
-/*operatore di stream*/
+/**operatore di stream*/
 template<typename T, typename Q>
 std::ostream &operator<<(std::ostream &os, const cbufferlist<T, Q> &cbl) {
     typename cbufferlist<T, Q>::const_iterator iin, ifin;

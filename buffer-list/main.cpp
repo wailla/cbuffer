@@ -177,6 +177,14 @@ void  test_buffer_stinghe(){
     std::cout<<"Ricerca di 'cip': "<< cbffstr.find("cip")<<std::endl;
     std::cout<<"Ricerca di 'cipp': "<< cbffstr.find("cipp")<<std::endl;
 
+    std::cout << "ricerca con operatore[]"<< std::endl;
+    std::cout<<cbffstr[3]<<std::endl;
+
+    std::string com = "ciao";
+    cbffstr[3] = com;
+    std::cout << "modifica con operatore[]"<< std::endl;
+    std::cout<<cbffstr[3]<<std::endl;
+
 
 }
 
@@ -200,7 +208,7 @@ void test_buffer_complex(){
     for(i=cbcx.begin(),ie=cbcx.end(); i!=ie; ++i)
         std::cout<<*i<<std::endl;
 
-    std::cout<<"Ricerca di '(1,1)': "<<cbcx.find(complex(1,5))<<std::endl;
+    std::cout<<"Ricerca di '(1,5)': "<<cbcx.find(complex(1,5))<<std::endl;
     std::cout<<"Ricerca di '(2,2)': "<<cbcx.find(complex(2,2))<<std::endl;
 
     cbcx.insert(complex(4,5));
@@ -208,9 +216,15 @@ void test_buffer_complex(){
     std::cout<<"Ricerca di '(4,5)'dopo sovrascrittura: "<<cbcx.find(complex(4,5))<<std::endl;
 
     complex c = cbcx.extract();
+    std::cout << c << std::endl;
     std::cout<<"Ricerca di '(2,6)'estrazione: "<<cbcx.find(complex(2,6))<<std::endl;
 
     std::cout << "ricerca con operatore[]"<< std::endl;
+    std::cout<<cbcx[3]<<std::endl;
+
+    complex com(2,3);
+    cbcx[3] = com;
+    std::cout << "modifica con operatore[]"<< std::endl;
     std::cout<<cbcx[3]<<std::endl;
 
 }
@@ -220,9 +234,36 @@ void test_buffer_int_buffer(){
     cbfl buff1(2);
     buff1.insert(1);
     buff1.insert(2);
-    cbfl buff2(2);
+    cbfl buff2(3);
     buff2.insert(4);
     buff2.insert(5);
+    buff2.insert(5);
+    cbffcbffint.insert(buff1);
+    cbffcbffint.insert(buff2);
+
+    std::cout<<"Stampa con operator<<"<<std::endl;
+    std::cout<<cbffcbffint<<std::endl;
+
+    std::cout<<"Dimensione della lista: "<<cbffcbffint.size()<<std::endl;
+
+    std::cout<<"Stampa con iteratori"<<std::endl;
+
+    cbufferlist<cbfl, equalBufferInt>:: const_iterator i,ie;
+
+    for(i=cbffcbffint.begin(),ie=cbffcbffint.end(); i!=ie; ++i)
+        std::cout<<*i<<std::endl;
+
+    std::cout << "ricerca con operatore[]"<< std::endl;
+    std::cout<<cbffcbffint[1]<<std::endl;
+
+    cbfl com (4);
+    com.insert(1);
+    com.insert(2);
+    com.insert(4);
+    com.insert(5);
+    cbffcbffint[1] = com;
+    std::cout << "modifica con operatore[]"<< std::endl;
+    std::cout<<cbffcbffint[1]<<std::endl;
 
 }
 
@@ -234,8 +275,7 @@ int main() {
     test_const_list_int(buff1);
     test_buffer_stinghe();
     test_buffer_complex();
-
-    //test_buffer_int_buffer();
+    test_buffer_int_buffer();
     return 0;
 }
 
