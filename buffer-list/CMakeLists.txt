@@ -3,4 +3,4 @@ project(cbufferlist)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(cbufferlist main.cpp exetion.cpp)
+add_executable(cbufferlist main.cpp exeption.cpp)
