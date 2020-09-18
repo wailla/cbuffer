@@ -10,25 +10,26 @@
 #include <cstddef>  // std::ptrdiff_t
 #include "exeptionBuffer.h"
 
-/**
-    @brief Coda FIFO
-    description
-    Classe template che implementa una coda FIFO di elementi generici T.
-    @param T tipo del valore degli elementi della coda
- */
+    /**
+        @brief Coda FIFO
+        @description
+        Classe template che implementa una coda FIFO di elementi generici T.
+        @param T tipo del valore degli elementi della coda
+        @param Q operatore di uguaglianza
+    */
 template<typename T, typename Q>
 class cbufferlist {
 
     // Tipo di supporto privato della coda
     typedef T value_type; ///< @brief Tipo di supporto privato per rappresentare
-                          ///< il tipo generico del valore degli elementi del buffer
+                          ///< gli elemeti generici del buffer
     struct element {
         value_type value; ///< @brief Valore dell'elemento
         element *next; ///< @brief Puntatore all'elemento successivo della coda
 
         /**
          * @brief costruttore di default (METODO FONDAMENTALE)
-         * Unico cosrtuttore pre crazione di oggetto
+         * Unico cosrtuttore per la crazione di oggetto di tipo element
          */
         element() : next(nullptr) {} // initialization list
 
@@ -52,49 +53,32 @@ class cbufferlist {
         element(const value_type &v, element *n) : value(v), next(n) {} // initialization list
         /**
         @brief Distruttore (METODO FONDAMENTALE)
-
         @description
           Distruttore per deallocare la memoria allocata da un elemento.
-        Viene chiamato automaticamente il distruttore del valore
-        dell'elemento, corrispondente al distruttore del tipo T.
         */
         ~element() {
             next = nullptr;
         }
-        /*
-            Gli altri metodi fondamentali (Copy Constructor e operatore di
-            assegnamento) coincidono con quelli di default, pertanto è inutile
-            e ridondante specificarli.
-        */
 
     };//fine struct
 
-    element *_head;
-    element *_tail;
-    // Tipo di supporto privato della coda
+    element *_head;///<puntatore alla testa del buffer
+    element *_tail;///<puntatore alla coda del buffer
+
     typedef unsigned int size_type; ///< @brief Tipo di supporto privato per
-    ///< rappresentare il numero di elementi
-    ///< inseriti nella coda (dimensione della coda)
-    size_type _size; ///< @brief Numero di elementi inseriti nella coda (dimensione della coda)
-    size_type _elementIn;
-    Q _equals;
+                                    ///< rappresentare la grandezza del buffer
+    size_type _size; ///< @brief grandezza del buffer
+    size_type _elementIn;///<@brief numero di elemeti nel buffer
+    Q _equals;///<operatore Q di uguagliza
     // Funzioni private della coda
 
 
-    // Funzioni helper private della coda
+    // Funzioni helper private del buffer
 
     /**
         @brief Rimozione ricorsiva degli elementi della coda a partire
         da un elemento (compreso)
-        @param e puntatore all'elemento da cui iniziare la rimozione
-               degli elementi della coda
-        @post La memoria allocata dagli elementi della coda a partire da quello
-              specificato (compreso) viene deallocata.
-        @post Il numero di elementi inseriti nella coda viene decrementato
-              di tante unità quanti sono gli elementi della coda a partire
-              da quello specificato (compreso).
-        @post Il puntatore alla coda punta ad una locazione di memoria ora
-              non più valida.
+        @param e puntatore all'elemento da cui si inizia a pulire
     */
     void clear_helper(element *e) {
         if(e!= nullptr) {
@@ -106,13 +90,11 @@ class cbufferlist {
     }
 
     /**
-@brief Rimozione dell'intero contenuto della coda
-@description
+        @brief Rimozione dell'intero contenuto della coda
+        @description
         Funzione privata che rimuove tutti gli elementi della coda.
-La rimozione viene effettuata ricorsivamente.
-@post La memoria allocata da tutti gli elementi della coda
-viene deallocata.
-*/
+        La rimozione viene effettuata ricorsivamente chiamando un'altra funzione.
+    */
     void clear() {
         clear_helper(_head);
         _tail = nullptr;
@@ -126,11 +108,7 @@ public:
 
         @description
         Costruttore di default per istanziare una coda vuota.
-        I dati membro sono inizializzati tramite initialization list,
-        per migliorare l'efficienza dell'inizializzazione.
-        @note Questo è l'unico costruttore che può essere utilizzato
-              per istanziare un eventuale array di code.
-              Se non è specificato viene settata a 10
+        @note se invocato la grandezza di default è 10
     */
     cbufferlist() : _head(nullptr), _tail(nullptr), _size(10), _elementIn(0) {} // initialization list
 
@@ -165,8 +143,10 @@ public:
     }
 
     /**
-     * copy costrctor
-     * @param other
+     * @brief copy costrctor (METEDO FONDAMENTALE)
+     * Copia di oggetti è ottenuta mediante l'uso di un costruttore di copia
+     e un operatore di assegnazione .
+     * @param other è un buffer creato in precedenza
      */
     cbufferlist(const cbufferlist &other) :
             _head(nullptr), _tail(nullptr), _size(0), _elementIn(0) { // initialization list
@@ -190,18 +170,9 @@ public:
 
         @description
         Operatore di assegnamento della coda, che permette la copia tra code.
-        In caso di auto-assegnamento, l'operatore non compie alcuna operazione,
-        restituendo semplicemente un riferimento alla coda corrente
-        (che coincide con quella da copiare).
-        @note Non è necessario gestire quest'eccezione direttamente all'interno
-	          dell'operatore di assegnamento, poiché l'eventuale memoria
-	          allocata dalla coda temporanea viene deallocata automaticamente
-	          a fine scope, essendo un dato automatico istanziato nello stack.
-
-		@param other coda come sorgente da copiare (operando di destra)
-
-		@return riferimento alla coda corrente (this)
-		@throw eccezione di allocazione di memoria
+		      @param other coda come sorgente da copiare (operando di destra)
+		        @return riferimento alla coda corrente (this)
+		          @throw eccezione di allocazione di memoria
     */
     cbufferlist &operator=(const cbufferlist &other) {
         // Per evitare l'auto-assegnamento (self-assignment: this = this)
@@ -221,7 +192,7 @@ public:
        cbuffer che contiene tipi Q. La creazione è possibile solo se è possibile castare
        un tipo Q in un tipo T (il controllo lo fà il compilatore).
        @param pther cbuffer sorgente
-   **/
+    **/
     template<typename IterT>
     cbufferlist(IterT begin, IterT end):   _size(0), _head(nullptr), _tail(nullptr), _elementIn(0) {
         try {
@@ -242,65 +213,41 @@ public:
 
         @description
         Distruttore della coda, che dealloca la memoria allocata da unbuffer.
-        @note In questo modo, la deallocazione della memoria allocata
-          da una coda comporta anche la deallocazione della memoria allocata
-          da tutti i suoi elementi. Pertanto, non può esistere un elemento
-          che non sia presente all'interno di una coda.
-        @note Il distruttore è definito virtual, in modo da rendere polimorfo
-          il metodo e, quindi, anche la classe (in caso di eventuale
-          ereditarietà).
-    @post La memoria allocata da tutti gli elementi della coda
-          viene deallocata.
-    @post Le locazioni di memoria allocate in precedenza dalla coda
-          e da tutti i suoi elementi ora non sono più valide.
     */
     virtual ~cbufferlist() {
         clear();
     }
 
-/**
-    @brief Numero di elementi inseriti nella coda
-    @description
-    Metodo dell'interfaccia pubblica che restituisce la grandezza del buffer.
-    Ciò avviene restituendo il valore dell'apposito dato membro _size.
-    @return numero di elementi inseriti nella coda
-*/
+    /**
+        @brief Numero di elementi inseriti nella coda
+        @description
+        Metodo dell'interfaccia pubblica che restituisce la grandezza del
+        buffer.
+        @return numero di elementi inseriti nella coda
+    */
     size_type size() const {
         return _size;
     }
 
-/**
+    /**
        @brief Numero di elementi inseriti nella coda
        @description
-       Metodo dell'interfaccia pubblica che restituisce quanti oggetti ci sono nel buffer.
-       Ciò avviene restituendo il valore dell'apposito dato membro _elementIn.
+       Metodo dell'interfaccia pubblica che restituisce quanti oggetti ci sono
+       nel buffer.
        @return numero di elementi inseriti nella coda
    */
     size_type elementiIn() const {
         return _elementIn;
     }
 
-/**
-    @brief Inserimento di un singolo elemento nella coda
+    /**
+        @brief Inserimento di un singolo elemento nella coda
 
-    @description
-    Metodo dell'interfaccia pubblica che inserisce un singolo elemento
-    nella coda.
-    @note Non è necessario gestire quest'eccezione direttamente all'interno
-          del metodo di inserimento, poiché, in caso di eccezione
-          di allocazione di memoria per il nuovo elemento dinamico,
-          questa non viene allocata.
-
-    @param value valore dell'elemento da inserire nella coda
-    @post Viene istanziato nell'heap un nuovo elemento dinamico,
-          inizializzato con il valore passato come parametro.
-    @post Il puntatore alla testa della coda viene eventualmente aggiornato,
-          puntando al nuovo elemento.
-    @post Il puntatore alla coda della coda viene aggiornato,
-          puntando al nuovo elemento.
-    @post Il numero di elementi inseriti nella coda viene incrementato
-          di un'unità.
-*/
+        @description
+        Metodo dell'interfaccia pubblica che inserisce un singolo elemento
+        nella coda.
+        @param value refernce al tipo che verrà iinserito
+    */
     void insert(const value_type &value) {
             element *tmp = new element(value);
             if (_size > _elementIn) {
@@ -320,25 +267,18 @@ public:
             }
     }
 
-/**
- @brief Rimozione dell'elemento più vecchio della coda
- @description
- Metodo dell'interfaccia pubblica che rimuove l'elemento più vecchio
- della coda (l'elemento in testa alla coda).
- @pre La coda non dev'essere vuota.
- @return valore dell'elemento rimosso
- @post Il secondo elemento più vecchio della coda diventa l'elemento
-       in testa alla coda.
- @post La memoria allocata dall'elemento più vecchio della coda
-       viene deallocata.
- @post Il numero di elementi inseriti nella coda viene decrementato
-       di un'unità.
- @throw empty_queue_exception se la coda è vuota
-*/
+    /**
+        @brief Rimozione dell'elemento più vecchio della coda
+        @description
+        Metodo dell'interfaccia pubblica che rimuove l'elemento più vecchio
+        della coda (l'elemento in testa alla coda).
+        @return valore dell'elemento rimosso
+        @throw empty_buffer_exception se la coda è vuota
+    */
     value_type extract() {
         if (_size == 0)
-            throw empty_buffer_exception("Impossibile rimuovere l'elemento piu' "
-                                         "vecchio: la coda e' vuota.");
+            throw empty_buffer_exception("Impossibile rimuovere l'elemento piu'"
+                                         " vecchio: la coda e' vuota.");
         value_type removed_value = _head->value;
 
         element *first = _head;
@@ -350,17 +290,14 @@ public:
         return removed_value;
     }
 
-/**
-    @brief Accesso in lettura all'elemento più vecchio della coda
-    @description
-    Metodo dell'interfaccia pubblica che restituisce il valore dell'elemento
-    più vecchio della coda
-    @return valore dell'elemento più vecchio della coda
-    @throw empty_queue_exception se la coda è vuota (non è presente
-           un elemento più vecchio da leggere)
-    @note L'eccezione dev'essere gestita adeguatamente nella funzione
-          chiamante.
-*/
+    /**
+        @brief Accesso in lettura all'elemento più vecchio della coda
+        @description
+        Metodo dell'interfaccia pubblica che restituisce il valore dell'elemento
+        più vecchio della coda
+        @return valore dell'elemento più vecchio della coda
+        @throw empty_buffer_exception se la coda è vuota
+    */
     value_type &get_head() const {
         if (_elementIn == 0)
             throw empty_buffer_exception("Impossibile leggere l'elemento piu' "
@@ -375,30 +312,13 @@ public:
         return _tail->value;
     }
 
-/**
-    @brief Esistenza nella coda di almeno un elemento di un certo valore
-           dato
-    @description
-    Metodo dell'interfaccia pubblica che determina se la coda corrente
-    contiene almeno un elemento di un certo valore dato, passato come
-    parametro.
-    @param value valore dell'elemento di cui determinare l'esistenza
-           nella coda
-    @return true se la coda contiene almeno un elemento del valore dato
-    @return false altrimenti
-*/
-    bool contains(const value_type &value) const {
-        element *curr = _head;
-
-        while (curr != nullptr) {
-            if (_equals(curr->value, value))
-                return true;
-            curr = curr->next;
-        }
-
-        return false;
-    }
-
+    /**
+     * @brief operaotore di lettura/scrittura di di una determinato punto
+     * del buffer
+     * @param index inidirzzo del buffer
+     * @return elemento in quel punto del buffer
+     * @throw se l'indizzo è maggiore della grandezza torna un'eccezione
+     */
     value_type &operator[](size_type index) {
         if (index < _size) {
             element *curr = _head;
@@ -412,6 +332,11 @@ public:
                                          "l'indirizzo è maggiore di size");
     }
 
+    /**
+     * @brief funzione di ricerca all'interno del buffer
+     * @param value oggetto da cercare
+     * @return true se esiste false altrimenti
+     */
     bool find(const value_type &value) const {
         element *curr = _head;
 
@@ -433,7 +358,7 @@ public:
 	    @description
 		Iteratore della coda in lettura e scrittura di tipo forward.
 		Gli elementi sono ritornati seguendo la logica FIFO.
-        La sovrascrittura di un elemento non ne cambia lanzianità.
+        La sovrascrittura di un elemento non ne cambia l'anzianità.
 	*/
     class iterator {
 
@@ -448,21 +373,14 @@ public:
         // Traits dell'iteratore
 
         typedef std::forward_iterator_tag iterator_category; ///< @brief
-        ///< Categoria
-        ///< dell'iteratore
-        typedef T value_type; ///< @brief Tipo dei dati
-        ///< puntati
-        ///< dall'iteratore
-        typedef ptrdiff_t difference_type; ///< @brief Tipo per
-        ///< rappresentare la
-        ///< differenza tra
-        ///< due puntatori
-        typedef T *pointer; ///< @brief Tipo di puntatore
-        ///< ai dati puntati
-        ///< dall'iteratore
-        typedef T &reference; ///< @brief Tipo di
-        ///< riferimento ai dati
-        ///< puntati dall'iteratore
+        ///< Categoria dell'iteratore
+        typedef T value_type; ///< @brief Tipo dei dati puntati dall'iteratore
+        typedef ptrdiff_t difference_type; ///< @brief Tipo per rappresentare la
+        ///< differenza tra due puntatori
+        typedef T *pointer; ///< @brief Tipo di puntatore dati puntati
+        ///<dall'iteratore
+        typedef T &reference; ///< @brief Tipo di riferimento ai dati puntati
+        ///<dall'iteratore
 
         // Metodi fondamentali dell'iteratore
 
@@ -478,8 +396,6 @@ public:
 			@brief Costruttore di copia/Copy Constructor (METODO FONDAMENTALE)
             @description
 			Costruttore di copia/Copy Constructor dell'iteratore.
-			Permette di istanziare un iteratore con i valori dei dati membro
-            presi da un altro iteratore.
 			@param other iteratore da copiare per istanziare quello corrente
 		*/
         iterator(const iterator &other) : _e(other._e) {} // initialization list
@@ -488,7 +404,6 @@ public:
 			@brief Operatore di assegnamento (METODO FONDAMENTALE)
             @description
 			Operatore di assegnamento dell'iteratore.
-			Permette la copia tra iteratori.
 			@param other iteratore come sorgente da copiare (operando di destra)
 			@return riferimento all'iteratore corrente
 		*/
@@ -500,7 +415,6 @@ public:
         /**
 			@brief Distruttore (METODO FONDAMENTALE)
             @description
-			Distruttore dell'iteratore.
 			Dealloca la memoria allocata da un iteratore e dai suoi dati membro.
 		*/
         ~iterator() {}
@@ -513,8 +427,6 @@ public:
 			@brief Operatore di dereferenziamento
             @description
 			Operatore di dereferenziamento dell'iteratore.
-            Permette l'accesso in lettura e scrittura al valore dell'elemento
-            puntato dall'iteratore.
 			@return valore dell'elemento puntato dall'iteratore
 		*/
         reference operator*() const {
@@ -526,8 +438,6 @@ public:
             @description
 			Operatore di accesso, tramite puntatore, ai dati puntati
             dall'iteratore.
-            Permette l'accesso in lettura e scrittura, tramite puntatore,
-            al valore dell'elemento puntato dall'iteratore.
 			@return puntatore al valore dell'elemento puntato dall'iteratore
 		*/
         pointer operator->() const {
@@ -538,11 +448,6 @@ public:
 			@brief Operatore di iterazione pre-incremento
             @description
 			Operatore di iterazione pre-incremento dell'iteratore.
-            Permette di incrementare l'iteratore di un'unità, puntando
-            all'elemento successivo, e di utilizzarlo allo stato successivo
-            all'incremento.
-            @pre L'iteratore deve puntare ad una locazione di memoria interna
-                 alla coda.
 			@return riferimento all'iteratore corrente incrementato
             @throw queue_iterator_out_of_bounds_exception se l'iteratore,
                    incrementando di un'unità, punta ad una locazione di memoria
@@ -564,15 +469,10 @@ public:
 			@brief Operatore di iterazione post-incremento
             @description
 			Operatore di iterazione post-incremento dell'iteratore.
-            Permette di incrementare l'iteratore di un'unità, puntando
-            all'elemento successivo, e di utilizzarlo allo stato precedente
-            all'incremento.
-            @pre L'iteratore deve puntare ad una locazione di memoria interna
-                 al buffer.
             @param int place parameter per distinguere l'operatore di iterazione
                    post-incremento da quello di pre-incremento
 			@return copia dell'iteratore corrente prima di essere incrementato
-            @throw queue_iterator_out_of_bounds_exception se l'iteratore,
+            @throw buffer_iterator_out_of_bounds_exception se l'iteratore,
                    incrementando di un'unità, punta ad una locazione di memoria
                    esterna al buffer
 		*/
@@ -592,14 +492,10 @@ public:
         /**
 			@brief Operatore di uguaglianza
             @description
-			Operatore di uguaglianza dell'iteratore.
             Permette di confrontare due iteratori, verificando se sono uguali.
-            @note Due iteratori sono definiti "uguali" se puntano allo stesso
-                  elemento della coda.
 			@param other iteratore da confrontare con quello corrente
 			@return true se i due iteratori puntano allo stesso elemento
-                    della coda
-            @return false altrimenti
+                    della coda false altrimenti
 		*/
         bool operator==(const iterator &other) const {
             return (_e == other._e);
@@ -608,14 +504,10 @@ public:
         /**
 			@brief Operatore di diversità
             @description
-			Operatore di diversità dell'iteratore.
             Permette di confrontare due iteratori, verificando se sono diversi.
-            @note Due iteratori sono definiti "diversi" se non puntano
-                  allo stesso elemento della coda.
 			@param other iteratore da confrontare con quello corrente
 			@return true se i due iteratori non puntano allo stesso elemento
-                    della coda
-            @return false altrimenti
+                    della coda false altrimenti
 		*/
         bool operator!=(const iterator &other) const {
             return (_e != other._e);
@@ -628,8 +520,7 @@ public:
         */
 
         friend class const_iterator; // per dare accesso ai dati privati
-        // dell'iteratore da parte dell'iteratore
-        // costante
+        //dell'iteratore
 
         /**
 			@brief Operatore di uguaglianza tra un iteratore in lettura
@@ -637,17 +528,10 @@ public:
             @description
 			Operatore di uguaglianza dell'iteratore in lettura e scrittura
             per confrontarlo con un iteratore costante.
-            Permette di confrontare un iteratore in lettura e scrittura
-            (operando di sinistra) con un iteratore costante
-            (operando di destra), verificando se sono uguali.
-            @note Due iteratori di tipi diversi (uno in lettura e scrittura
-                  e uno costante) sono definiti "uguali" se puntano allo stesso
-                  elemento della coda.
 			@param other iteratore costante da confrontare con l'iteratore
                    in lettura e scrittura corrente
 			@return true se i due iteratori puntano allo stesso elemento
-                    della coda
-            @return false altrimenti
+                    della coda false altrimenti
 		*/
         bool operator==(const const_iterator &other) const {
             return (_e == other._e);
@@ -659,17 +543,10 @@ public:
 			@description
             Operatore di diversità dell'iteratore in lettura e scrittura
             per confrontarlo con un iteratore costante.
-            Permette di confrontare un iteratore in lettura e scrittura
-            (operando di sinistra) con un iteratore costante
-            (operando di destra), verificando se sono diversi.
-            @note Due iteratori di tipi diversi (uno in lettura e scrittura
-                  e uno costante) sono definiti "diversi" se non puntano
-                  allo stesso elemento della coda.
 			@param other iteratore costante da confrontare con l'iteratore
                    in lettura e scrittura corrente
 			@return true se i due iteratori non puntano allo stesso elemento
-                    della coda
-            @return false altrimenti
+                    della coda false altrimenti
 		*/
         bool operator!=(const const_iterator &other) const {
             return (_e != other._e);
@@ -677,26 +554,16 @@ public:
 
     private:
 
-        // Ulteriori dati membro privati dell'iteratore
-
-        friend class cbufferlist; // per permettere alla classe container (queue)
-        // di utilizzare il costruttore privato
-        // di inizializzazione
+        friend class cbufferlist; // per permettere alla classe container
+        //(buffer) di utilizzare il costruttore privato di inizializzazione
 
         // Metodi privati dell'iteratore
 
         /**
 			@brief Costruttore privato
 			@description
-            Costruttore privato di inizializzazione dell'iteratore.
             Permette di istanziare un iteratore, inizializzandolo con
             il puntatore a un elemento della coda.
-            @note Questo costruttore è definito explicit per evitare che venga
-		          utilizzato dal compilatore per effettuare conversioni di tipo
-		          implicite da puntatore a elemento a iteratore.
-            @note Questo costruttore è utilizzato dalla classe container (queue)
-                  nelle funzioni membro che permettono di utilizzare
-                  gli iteratori: begin() ed end().
 			@param e puntatore a un elemento della coda
 		*/
         explicit iterator(element *e) : _e(e) {} // initialization list
@@ -749,24 +616,15 @@ public:
         // Traits dell'iteratore costante
 
         typedef std::forward_iterator_tag iterator_category; ///< @brief
-        ///< Categoria
-        ///< dell'iteratore
-        ///< costante
-        typedef const T value_type; ///< @brief Tipo dei dati
-        ///< puntati
-        ///< dall'iteratore
-        ///< costante
-        typedef ptrdiff_t difference_type; ///< @brief Tipo per
-        ///< rappresentare la
-        ///< differenza tra
-        ///< due puntatori
-        typedef const T *pointer; ///< @brief Tipo di puntatore
-        ///< ai dati puntati
+        ///<Categoria dell'iteratore costante
+        typedef const T value_type; ///< @brief Tipo dei dati puntati
+        ///<dall'iteratore costante
+        typedef ptrdiff_t difference_type; ///< @brief Tipo per rappresentare la
+        ///< differenza tra due puntatori
+        typedef const T *pointer; ///< @brief Tipo di puntatore ai dati puntati
         ///< dall'iteratore costante
-        typedef const T &reference; ///< @brief Tipo di
-        ///< riferimento ai dati
-        ///< puntati dall'iteratore
-        ///< costante
+        typedef const T &reference; ///< @brief Tipo di riferimento ai dati
+        ///< puntati dall'iteratore costante
 
         // Metodi fondamentali dell'iteratore costante
 
@@ -781,7 +639,6 @@ public:
         /**
 			@brief Costruttore di copia/Copy Constructor (METODO FONDAMENTALE)
             @description
-			Costruttore di copia/Copy Constructor dell'iteratore costante.
 			Permette di istanziare un iteratore costante con i valori dei dati
             membro presi da un altro iteratore costante.
 			@param other iteratore costante da copiare per istanziare quello
@@ -793,7 +650,6 @@ public:
         /**
 			@brief Operatore di assegnamento (METODO FONDAMENTALE)
             @description
-			Operatore di assegnamento dell'iteratore costante.
 			Permette la copia tra iteratori costanti.
 			@param other iteratore costante come sorgente da copiare
                    (operando di destra)
@@ -806,21 +662,14 @@ public:
 
         /**
 			@brief Distruttore (METODO FONDAMENTALE)
-            @description
-			Distruttore dell'iteratore costante.
-			Dealloca la memoria allocata da un iteratore costante e dai suoi
-            dati membro.
 		*/
         ~const_iterator() {}
 
         // Fine metodi fondamentali dell'iteratore costante
 
-        // Ulteriori metodi dell'interfaccia pubblica dell'iteratore costante
-
         /**
 			@brief Operatore di dereferenziamento
             @description
-			Operatore di dereferenziamento dell'iteratore costante.
             Permette l'accesso in sola lettura al valore costante dell'elemento
             puntato dall'iteratore costante.
 			@return valore costante dell'elemento puntato dall'iteratore
@@ -833,8 +682,6 @@ public:
         /**
             @brief Operatore di accesso ai dati tramite puntatore
             @description
-			Operatore di accesso, tramite puntatore, ai dati puntati
-            dall'iteratore costante.
             Permette l'accesso in sola lettura, tramite puntatore, al valore
             costante dell'elemento puntato dall'iteratore costante.
 			@return puntatore al valore costante dell'elemento puntato
@@ -847,14 +694,10 @@ public:
         /**
 			@brief Operatore di iterazione pre-incremento
             @description
-			Operatore di iterazione pre-incremento dell'iteratore costante.
             Permette di incrementare l'iteratore costante di un'unità, puntando
-            all'elemento successivo, e di utilizzarlo allo stato successivo
-            all'incremento.
-            @pre L'iteratore costante deve puntare ad una locazione di memoria
-                 interna alla coda.
+            all'elemento successivo.
 			@return riferimento all'iteratore costante corrente incrementato
-            @throw queue_iterator_out_of_bounds_exception se l'iteratore
+            @throw buffer_iterator_out_of_bounds_exception se l'iteratore
                    costante, incrementando di un'unità, punta ad una locazione
                    di memoria esterna alla coda
 		*/
@@ -874,17 +717,13 @@ public:
         /**
 			@brief Operatore di iterazione post-incremento
             @description
-			Operatore di iterazione post-incremento dell'iteratore costante.
             Permette di incrementare l'iteratore costante di un'unità, puntando
-            all'elemento successivo, e di utilizzarlo allo stato precedente
-            all'incremento.
-            @pre L'iteratore costante deve puntare ad una locazione di memoria
-                 interna alla coda.
+            all'elemento successivo.
 			@param int place parameter per distinguere l'operatore di iterazione
                    post-incremento da quello di pre-incremento
 			@return copia dell'iteratore costante corrente prima di essere
                     incrementato
-            @throw queue_iterator_out_of_bounds_exception se l'iteratore
+            @throw buffer_iterator_out_of_bounds_exception se l'iteratore
                    costante, incrementando di un'unità, punta ad una locazione
                    di memoria esterna alla coda
 		*/
@@ -905,15 +744,11 @@ public:
         /**
 			@brief Operatore di uguaglianza
             @description
-			Operatore di uguaglianza dell'iteratore costante.
             Permette di confrontare due iteratori costanti, verificando se sono
             uguali.
-            @note Due iteratori costanti sono definiti "uguali" se puntano
-                  allo stesso elemento della coda.
 			@param other iteratore costante da confrontare con quello corrente
 			@return true se i due iteratori costanti puntano allo stesso
-                    elemento della coda
-            @return false altrimenti
+                    elemento della coda false altrimenti
 		*/
         bool operator==(const const_iterator &other) const {
             return (_e == other._e);
@@ -923,14 +758,10 @@ public:
 			@brief Operatore di diversità
             @description
 			Operatore di diversità dell'iteratore costante.
-            Permette di confrontare due iteratori costanti, verificando se sono
-            diversi.
-            @note Due iteratori costanti sono definiti "diversi" se non puntano
-                  allo stesso elemento della coda.
+            Permette di confrontare due iteratori costanti.
 			@param other iteratore costante da confrontare con quello corrente
 			@return true se i due iteratori costanti non puntano allo stesso
-                    elemento della coda
-            @return false altrimenti
+                    elemento della coda false altrimenti
 		*/
         bool operator!=(const const_iterator &other) const {
             return (_e != other._e);
@@ -943,8 +774,7 @@ public:
         */
 
         friend class iterator; // per dare accesso ai dati privati
-        // dell'iteratore costante da parte
-        // dell'iteratore in lettura e scrittura
+        // dell'iteratore costante
 
         /**
 			@brief Operatore di uguaglianza tra un iteratore costante
@@ -952,17 +782,10 @@ public:
             @description
 			Operatore di uguaglianza dell'iteratore costante per confrontarlo
             con un iteratore in lettura e scrittura.
-            Permette di confrontare un iteratore costante (operando di sinistra)
-            con un iteratore in lettura e scrittura (operando di destra),
-            verificando se sono uguali.
-            @note Due iteratori di tipi diversi (uno costante e uno in lettura
-                  e scrittura) sono definiti "uguali" se puntano allo stesso
-                  elemento della coda.
 			@param other iteratore in lettura e scrittura da confrontare
                    con l'iteratore costante corrente
 			@return true se i due iteratori puntano allo stesso elemento
-                    della coda
-            @return false altrimenti
+                    della coda false altrimenti
 		*/
         bool operator==(const iterator &other) const {
             return (_e == other._e);
@@ -972,19 +795,13 @@ public:
 			@brief Operatore di diversità tra un iteratore costante
                    e un iteratore in lettura e scrittura
             @description
-			Operatore di diversità dell'iteratore costante per confrontarlo
-            con un iteratore in lettura e scrittura.
             Permette di confrontare un iteratore costante (operando di sinistra)
             con un iteratore in lettura e scrittura (operando di destra),
             verificando se sono diversi.
-            @note Due iteratori di tipi diversi (uno costante e uno in lettura
-                  e scrittura) sono definiti "diversi" se non puntano
-                  allo stesso elemento della coda.
 			@param other iteratore in lettura e scrittura da confrontare
                    con l'iteratore costante corrente
 			@return true se i due iteratori non puntano allo stesso elemento
-                    della coda
-            @return false altrimenti
+                    della coda false altrimenti
 		*/
         bool operator!=(const iterator &other) const {
             return (_e != other._e);
@@ -994,8 +811,6 @@ public:
 			@brief Costruttore di conversione da iteratore in lettura e
                    scrittura a iteratore costante
             @description
-			Costruttore dell'iteratore costante di conversione da iteratore
-            in lettura e scrittura a iteratore costante.
 			Permette di convertire un iteratore in lettura e scrittura
             in un iteratore costante, istanziando quest'ultimo con i valori
             dei dati membro presi da un iteratore in lettura e scrittura.
@@ -1009,8 +824,6 @@ public:
 			@brief Operatore di assegnamento di un iteratore in lettura
                    e scrittura a un iteratore costante
             @description
-			Operatore dell'iteratore costante di assegnamento di un iteratore
-            in lettura e scrittura a un iteratore costante.
 			Permette la copia da un iteratore in lettura e scrittura
             a un iteratore costante.
 			@param other iteratore in lettura e scrittura come sorgente
@@ -1024,11 +837,8 @@ public:
 
     private:
 
-        // Ulteriori dati membro privati dell'iteratore costante
-
-        friend class cbufferlist; // per permettere alla classe container (queue)
-        // di utilizzare il costruttore privato
-        // di inizializzazione
+        friend class cbufferlist; // per permettere alla classe container
+        //(buffer) di utilizzare il costruttore privato
 
         // Metodi privati dell'iteratore costante
 
@@ -1038,13 +848,6 @@ public:
             Costruttore privato di inizializzazione dell'iteratore costante.
             Permette di istanziare un iteratore costante, inizializzandolo con
             il puntatore a un elemento costante della coda.
-            @note Questo costruttore è definito explicit per evitare che venga
-		          utilizzato dal compilatore per effettuare conversioni di tipo
-		          implicite da puntatore a elemento costante a iteratore
-		          costante.
-            @note Questo costruttore è utilizzato dalla classe container (queue)
-                  nelle funzioni membro che permettono di utilizzare
-                  gli iteratori costanti: begin() e end().
 			@param e puntatore a un elemento costante della coda
 		*/
         explicit const_iterator(const element *e) :
@@ -1078,7 +881,12 @@ public:
 
 };
 
-/**operatore di stream*/
+    /**@brief operatore di stream
+         @descriptio permette di stampare qualsiasi cosa all'intero del buffer,
+         ogni oggetto sarà spezzato da uno spazio, o da un doppio spazio se è
+         un container di conainer
+         @param un buffer qualsiasi
+    */
 template<typename T, typename Q>
 std::ostream &operator<<(std::ostream &os, const cbufferlist<T, Q> &cbl) {
     typename cbufferlist<T, Q>::const_iterator iin, ifin;

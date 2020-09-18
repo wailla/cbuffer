@@ -4,20 +4,19 @@
 
 #ifndef CBUFFER_EXEPTIONBUFFER_H
 #define CBUFFER_EXEPTIONBUFFER_H
-// Direttive per il pre-compilatore
 
 #include <string> // std::string
 
-// Dichiarazione della classe eccezione custom empty_queue_exception
+// Dichiarazione della classe eccezione custom empty_buffer_exception
 
-/**
-	@brief Eccezione di coda vuota
-    @description
-	Classe eccezione custom di coda vuota.
-	Viene lanciata quando si prova ad accedere (in lettura e/o scrittura)
-    agli elementi di una coda vuota, oppure quando si prova a rimuovere
-    l'elemento più vecchio di una coda vuota.
-*/
+    /**
+	    @brief Eccezione di coda vuota
+        @description
+	    Classe eccezione custom di coda vuota.
+	    Viene lanciata quando si prova ad accedere (in lettura e/o scrittura)
+        agli elementi di una coda vuota, oppure quando si prova a rimuovere
+        l'elemento più vecchio di una coda vuota.
+    */
 class empty_buffer_exception {
 
     std::string _message; ///< @brief Messaggio di errore

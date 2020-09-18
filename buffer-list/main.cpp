@@ -3,20 +3,26 @@
 #include "cbufferlist.h"
 
 /**
- * versione da presenrtare e funzionante
- */
+  Predicato di eguaglianza di un int
+*/
 struct equalInt {
     bool operator()(int a, int b) const {
         return a == b;
     }
 };
 
+/**
+  Predicato di uguaglianza di una string
+*/
 struct equalString {
     bool operator()(const std::string &a, const std::string &b) const {
         return a.compare(b) == 0;
     }
 };
 
+/**
+  Struttura di complessi con costruttore
+*/
 struct complex {
     int real;
     int imaginary;
@@ -25,11 +31,17 @@ struct complex {
             real(re), imaginary(im) {} // initialization list
 };
 
+/**
+  Reimplementazione dell'operatore di stram per la visualizzazione di un complex
+*/
 std::ostream &operator<<(std::ostream &os, const complex &c) {
     std::cout << "(" << c.real << ", " << c.imaginary << ")";
     return os;
 }
 
+ /**
+    Predicato di uguaglianza di un complex
+ */
 struct equal_complex {
     bool operator()(const complex &c1, const complex &c2) const {
         return (c1.real == c2.real) && (c1.imaginary == c2.imaginary);
@@ -38,7 +50,9 @@ struct equal_complex {
 
 typedef cbufferlist<int, equalInt> cbfl;
 
-
+/**
+   Predicato di uguaglianza di un buffer di interi
+*/
 struct equalBufferInt{
     bool operator()(const cbfl &cbuff1, const cbfl &cbuff2){
         return (cbuff1.size() == cbuff2.size());
@@ -278,4 +292,3 @@ int main() {
     test_buffer_int_buffer();
     return 0;
 }
-
