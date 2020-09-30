@@ -333,6 +333,26 @@ public:
     }
 
     /**
+     * @brief operaotore di lettura/scrittura di di una determinato punto
+     * del buffer
+     * @param index inidirzzo del buffer
+     * @return elemento in quel punto del buffer
+     * @throw se l'indizzo è maggiore della grandezza torna un'eccezione
+     */
+    value_type &operator[](const size_type index) const {
+        if (index < _size) {
+            element *curr = _head;
+            while (index != 0) {
+                curr=curr->next;
+                index--;
+            }
+            return curr->value;
+        } else
+            throw empty_buffer_exception("Impossibile recuperare l'elemto"
+                                         "l'indirizzo è maggiore di size");
+    }
+
+    /**
      * @brief funzione di ricerca all'interno del buffer
      * @param value oggetto da cercare
      * @return true se esiste false altrimenti

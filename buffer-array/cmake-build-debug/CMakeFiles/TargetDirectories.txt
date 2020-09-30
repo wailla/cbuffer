@@ -1,3 +1,0 @@
-/mnt/c/Users/Fabio/CLionProjects/cBuffer/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/mnt/c/Users/Fabio/CLionProjects/cBuffer/cmake-build-debug/CMakeFiles/edit_cache.dir
-/mnt/c/Users/Fabio/CLionProjects/cBuffer/cmake-build-debug/CMakeFiles/cBuffer.dir
